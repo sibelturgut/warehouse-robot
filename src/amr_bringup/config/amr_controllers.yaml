@@ -1,0 +1,71 @@
+controller_manager:
+  ros__parameters:
+    use_sim_time: true
+
+    update_rate: 50  # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    lift_position_controller:
+      type: position_controllers/JointGroupPositionController
+
+    # ADD THIS: Declare the new differential drive controller
+    amr_base_controller:
+      type: diff_drive_controller/DiffDriveController
+
+lift_position_controller:
+  ros__parameters:
+    use_sim_time: true
+
+    joints:
+      - lift_joint
+    interface_name: position
+
+# ADD THIS COMPLETELY: Configuration parameters for mobile base geometry
+amr_base_controller:
+  ros__parameters:
+    use_sim_time: true
+
+    left_wheel_names: ["left_wheel_joint"]
+    right_wheel_names: ["right_wheel_joint"]
+    
+    # Kinematics geometry (Update these to match your exact URDF dimensions!)
+    wheel_separation: 0.59  # 2 * (chassis_width/2 + wheel_ygap) = 2 * 0.295
+    wheel_radius: 0.06      # Must match URDF wheel_radius property
+
+    # Topic configuration
+    odom_frame_id: odom
+    base_frame_id: base_link
+    pose_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.03]
+    twist_covariance_diagonal: [0.001, 0.001, 0.001, 0.001, 0.001, 0.03]
+
+    # Publish rate settings
+    publish_rate: 50.0
+    cmd_vel_timeout: 0.25 # Stop if no cmd_vel for 0.25s (> 0.1s command period at 10 Hz)
+
+    # Enable odometry loop feedback
+    open_loop: false
+    enable_odom_tf: true
+    use_stamped_vel: false
+
+    velocity_rolling_window_size: 10
+    halt_on_type_change: true
+
+    linear:
+      x:
+        has_velocity_limits: true
+        max_velocity: 1.0        # m/s
+        min_velocity: -1.0       # m/s
+        has_acceleration_limits: true
+        max_acceleration: 1.5    # m/s^2  <- Aggressive acceleration
+        max_deceleration: 1.5    # m/s^2  <- High braking torque!
+
+    # Enable limits for the angular Z axis (turning)
+    angular:
+      z:
+        has_velocity_limits: true
+        max_velocity: 2.0        # rad/s
+        has_acceleration_limits: true
+        max_acceleration: 2.0    # rad/s^2
+        max_deceleration: 4.0    # rad/s^2  <- Brakes the spin in ~0.5s

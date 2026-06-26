@@ -1,0 +1,22 @@
+[0.155s] Invoking command in '/home/sibel/amr_ws/build/amr_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/sibel/amr_ws/install/amr_bringup:/opt/ros/humble /usr/bin/cmake --build /home/sibel/amr_ws/build/amr_description -- -j12 -l12
+[0.184s] Invoked command in '/home/sibel/amr_ws/build/amr_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/sibel/amr_ws/install/amr_bringup:/opt/ros/humble /usr/bin/cmake --build /home/sibel/amr_ws/build/amr_description -- -j12 -l12
+[0.192s] Invoking command in '/home/sibel/amr_ws/build/amr_description': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/sibel/amr_ws/install/amr_bringup:/opt/ros/humble /usr/bin/cmake --install /home/sibel/amr_ws/build/amr_description
+[0.198s] -- Install configuration: ""
+[0.198s] -- Execute custom install script
+[0.198s] -- Up-to-date symlink: /home/sibel/amr_ws/install/amr_description/share/ament_index/resource_index/package_run_dependencies/amr_description
+[0.198s] -- Up-to-date symlink: /home/sibel/amr_ws/install/amr_description/share/ament_index/resource_index/parent_prefix_path/amr_description
+[0.198s] -- Up-to-date symlink: /home/sibel/amr_ws/install/amr_description/share/amr_description/environment/ament_prefix_path.sh
+[0.198s] -- Up-to-date symlink: /home/sibel/amr_ws/install/amr_description/share/amr_description/environment/ament_prefix_path.dsv
+[0.199s] -- Up-to-date symlink: /home/sibel/amr_ws/install/amr_description/share/amr_description/environment/path.sh
+[0.199s] -- Up-to-date symlink: /home/sibel/amr_ws/install/amr_description/share/amr_description/environment/path.dsv
+[0.199s] -- Up-to-date symlink: /home/sibel/amr_ws/install/amr_description/share/amr_description/local_setup.bash
+[0.199s] -- Up-to-date symlink: /home/sibel/amr_ws/install/amr_description/share/amr_description/local_setup.sh
+[0.199s] -- Up-to-date symlink: /home/sibel/amr_ws/install/amr_description/share/amr_description/local_setup.zsh
+[0.199s] -- Up-to-date symlink: /home/sibel/amr_ws/install/amr_description/share/amr_description/local_setup.dsv
+[0.199s] -- Symlinking: /home/sibel/amr_ws/install/amr_description/share/amr_description/package.dsv
+[0.207s] -- Up-to-date symlink: /home/sibel/amr_ws/install/amr_description/share/ament_index/resource_index/packages/amr_description
+[0.207s] -- Up-to-date symlink: /home/sibel/amr_ws/install/amr_description/share/amr_description/cmake/amr_descriptionConfig.cmake
+[0.207s] -- Up-to-date symlink: /home/sibel/amr_ws/install/amr_description/share/amr_description/cmake/amr_descriptionConfig-version.cmake
+[0.207s] -- Up-to-date symlink: /home/sibel/amr_ws/install/amr_description/share/amr_description/package.xml
+[0.208s] -- Up-to-date symlink: /home/sibel/amr_ws/install/amr_description/share/amr_description/urdf/amr.urdf.xacro
+[0.210s] Invoked command in '/home/sibel/amr_ws/build/amr_description' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/sibel/amr_ws/install/amr_bringup:/opt/ros/humble /usr/bin/cmake --install /home/sibel/amr_ws/build/amr_description

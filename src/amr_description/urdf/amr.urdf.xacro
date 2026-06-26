@@ -1,0 +1,360 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="warehouse_amr">
+
+    <xacro:property name="chassis_length" value="0.80"/>
+    <xacro:property name="chassis_width" value="0.55"/>
+    <xacro:property name="chassis_height" value="0.05"/> 
+    <xacro:property name="wheel_radius" value="0.06"/>    
+    <xacro:property name="wheel_width" value="0.04"/>    
+    <xacro:property name="wheel_ygap" value="0.02"/>
+
+    <xacro:property name="caster_wheel_radius" value="0.015"/>
+    <xacro:property name="caster_wheel_width" value="0.02"/>
+    <xacro:property name="caster_trail" value="0.01"/>
+
+    <xacro:property name="lift_length" value="0.65"/>
+    <xacro:property name="lift_width" value="0.50"/>
+    <xacro:property name="lift_height" value="0.015"/>   
+    <xacro:property name="pillar_radius" value="0.015"/>    
+
+    <material name="dark_grey"><color rgba="0.2 0.2 0.2 1.0"/></material>
+    <material name="steel"><color rgba="0.7 0.7 0.7 1.0"/></material>
+    <material name="safety_orange"><color rgba="1.0 0.5 0.0 1.0"/></material>
+    <material name="black"><color rgba="0.0 0.0 0.0 1.0"/></material>
+    <material name="blue"><color rgba="0.0 0.0 0.8 1.0"/></material>
+
+    <xacro:macro name="inertial_box" params="mass l w h *origin">
+        <inertial>
+            <xacro:insert_block name="origin"/>
+            <mass value="${mass}"/>
+            <inertia ixx="${(1/12) * mass * (w*w + h*h)}" ixy="0.0" ixz="0.0"
+                     iyy="${(1/12) * mass * (l*l + h*h)}" iyz="0.0"
+                     izz="${(1/12) * mass * (l*l + w*w)}"/>
+        </inertial>
+    </xacro:macro>
+
+    <xacro:macro name="inertial_cylinder" params="mass r h *origin">
+        <inertial>
+            <xacro:insert_block name="origin"/>
+            <mass value="${mass}"/>
+            <inertia ixx="${(1/12) * mass * (3*r*r + h*h)}" ixy="0.0" ixz="0.0"
+                     iyy="${(1/12) * mass * (3*r*r + h*h)}" iyz="0.0"
+                     izz="${(1/2) * mass * (r*r)}"/>
+        </inertial>
+    </xacro:macro>
+
+    <xacro:macro name="inertial_sphere" params="mass r *origin">
+        <inertial>
+            <xacro:insert_block name="origin"/>
+            <mass value="${mass}"/>
+            <inertia ixx="${(2/5) * mass * (r*r)}" ixy="0.0" ixz="0.0"
+                     iyy="${(2/5) * mass * (r*r)}" iyz="0.0"
+                     izz="${(2/5) * mass * (r*r)}"/>
+        </inertial>
+    </xacro:macro>
+
+
+    <link name="base_footprint"/>
+
+    <link name="base_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry><box size="${chassis_length} ${chassis_width} ${chassis_height}"/></geometry>
+            <material name="dark_grey"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry><box size="${chassis_length} ${chassis_width} ${chassis_height}"/></geometry>
+        </collision>
+        <xacro:inertial_box mass="20.0" l="${chassis_length}" w="${chassis_width}" h="${chassis_height}">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:inertial_box>
+    </link>
+
+    <joint name="base_footprint_joint" type="fixed">
+        <parent link="base_footprint"/>
+        <child link="base_link"/>
+        <origin xyz="0 0 ${wheel_radius}" rpy="0 0 0"/>
+    </joint>
+
+    <xacro:macro name="wheel" params="prefix y_reflect">
+        <link name="${prefix}_wheel">
+            <visual>
+                <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+                <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+                <material name="black"/>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+                <geometry><cylinder radius="${wheel_radius}" length="${wheel_width}"/></geometry>
+            </collision>
+            <xacro:inertial_cylinder mass="1.5" r="${wheel_radius}" h="${wheel_width}">
+                <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+            </xacro:inertial_cylinder>
+        </link>
+
+        <!-- Friction MUST be set here, not via <surface> inside <collision>:
+             the URDF->SDF conversion Ignition runs on spawn drops in-collision
+             <surface>, so those values were silently ignored. High grip so the
+             drive wheels supply traction and lateral hold on arcs. -->
+        <gazebo reference="${prefix}_wheel">
+            <mu1>1.0</mu1>
+            <mu2>1.0</mu2>
+        </gazebo>
+
+        <joint name="${prefix}_wheel_joint" type="continuous">
+            <parent link="base_link"/>
+            <child link="${prefix}_wheel"/>
+            <origin xyz="0 ${y_reflect * (chassis_width/2 + wheel_ygap)} 0" rpy="0 0 0"/>
+            <axis xyz="0 1 0"/>
+            <!-- Must clear the worst-case arc demand on the outer wheel:
+                 (lin_max + ang_max*wheel_sep/2)/wheel_radius
+                 = (1.0 + 2.0*0.295)/0.06 ~= 27 rad/s. -->
+            <limit effort="200.0" velocity="30.0"/>
+            <!-- No passive damping/friction: ign_ros2_control's velocity servo
+                 drives these joints, so passive joint friction causes stick-slip. -->
+            <dynamics damping="0.0" friction="0.0"/>
+        </joint>
+    </xacro:macro>
+
+    <xacro:wheel prefix="left" y_reflect="1"/>
+    <xacro:wheel prefix="right" y_reflect="-1"/>
+
+    <xacro:macro name="caster" params="prefix x_offset">
+        <!-- Low-friction support sphere (standard sim caster for diff-drive).
+             No rolling/swivel constraint, so it can't scrub or fight turns;
+             the drive wheels provide all traction. -->
+        <link name="${prefix}_caster">
+            <visual>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry><sphere radius="${caster_wheel_radius}"/></geometry>
+                <material name="black"/>
+            </visual>
+            <collision>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <geometry><sphere radius="${caster_wheel_radius}"/></geometry>
+            </collision>
+            <xacro:inertial_sphere mass="0.3" r="${caster_wheel_radius}">
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+            </xacro:inertial_sphere>
+        </link>
+
+        <!-- Near-frictionless so the fixed fore/aft support spheres slide freely
+             instead of acting as grippy skids that fight arcs (skid-steer drift).
+             Set via <gazebo reference> because in-collision <surface> is dropped. -->
+        <gazebo reference="${prefix}_caster">
+            <mu1>0.02</mu1>
+            <mu2>0.02</mu2>
+        </gazebo>
+
+        <joint name="${prefix}_caster_joint" type="fixed">
+            <parent link="base_link"/>
+            <child link="${prefix}_caster"/>
+            <origin xyz="${x_offset} 0 ${-(wheel_radius - caster_wheel_radius)}" rpy="0 0 0"/>
+        </joint>
+    </xacro:macro>
+
+    <xacro:caster prefix="front" x_offset="0.30"/>
+    <xacro:caster prefix="rear" x_offset="-0.30"/>
+
+
+    <link name="lift_plate">
+        <visual>
+            <origin xyz="0 0 ${lift_height/2}" rpy="0 0 0"/>
+            <geometry><box size="${lift_length} ${lift_width} ${lift_height}"/></geometry>
+            <material name="safety_orange"/>
+        </visual>
+        <collision>
+            <origin xyz="0 0 ${lift_height/2}" rpy="0 0 0"/>
+            <geometry><box size="${lift_length} ${lift_width} ${lift_height}"/></geometry>
+        </collision>
+        <xacro:inertial_box mass="4.0" l="${lift_length}" w="${lift_width}" h="${lift_height}">
+            <origin xyz="0 0 ${lift_height/2}" rpy="0 0 0"/>
+        </xacro:inertial_box>
+    </link>
+
+    <joint name="lift_joint" type="prismatic">
+        <parent link="base_link"/>
+        <child link="lift_plate"/>
+        <origin xyz="0 0 ${chassis_height/2 + 0.001}" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+        <limit lower="0.0" upper="0.04" effort="4000.0" velocity="0.04"/>
+        <dynamics damping="50.0" friction="10.0"/>
+    </joint>
+
+    <xacro:macro name="lift_pillar" params="prefix x_offset y_offset">
+        <link name="${prefix}_pillar">
+            <visual>
+                <origin xyz="0 0 -0.0225" rpy="0 0 0"/>
+                <geometry><cylinder radius="${pillar_radius}" length="0.045"/></geometry>
+                <material name="steel"/>
+            </visual>
+            <xacro:inertial_cylinder mass="0.2" r="${pillar_radius}" h="0.045">
+                <origin xyz="0 0 -0.0225" rpy="0 0 0"/>
+            </xacro:inertial_cylinder>
+        </link>
+
+        <joint name="${prefix}_pillar_joint" type="fixed">
+            <parent link="lift_plate"/>
+            <child link="${prefix}_pillar"/>
+            <origin xyz="${x_offset} ${y_offset} 0" rpy="0 0 0"/>
+        </joint>
+    </xacro:macro>
+
+    <xacro:lift_pillar prefix="front_left"  x_offset="0.22"  y_offset="0.18"/>
+    <xacro:lift_pillar prefix="front_right" x_offset="0.22"  y_offset="-0.18"/>
+    <xacro:lift_pillar prefix="rear_left"   x_offset="-0.22" y_offset="0.18"/>
+    <xacro:lift_pillar prefix="rear_right"  x_offset="-0.22" y_offset="-0.18"/>
+
+
+    <link name="sensor_chin">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry><box size="0.08 0.20 ${chassis_height}"/></geometry> 
+            <material name="dark_grey"/>
+        </visual>
+        <collision>
+            <geometry><box size="0.08 0.20 ${chassis_height}"/></geometry>
+        </collision>
+        <xacro:inertial_box mass="2.0" l="0.08" w="0.20" h="${chassis_height}">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:inertial_box>
+    </link>
+
+    <joint name="sensor_chin_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="sensor_chin"/>
+        <origin xyz="${chassis_length/2 + 0.04} 0 0" rpy="0 0 0"/>
+    </joint>
+
+    <link name="lidar_link">
+        <visual>
+            <geometry><cylinder radius="0.035" length="0.03"/></geometry>
+            <material name="blue"/>
+        </visual>
+        <xacro:inertial_cylinder mass="0.2" r="0.035" h="0.03">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:inertial_cylinder>
+    </link>
+
+    <joint name="lidar_joint" type="fixed">
+        <parent link="sensor_chin"/>
+        <child link="lidar_link"/>
+        <origin xyz="0.01 0 ${chassis_height/2 + 0.015}" rpy="0 0 0"/>
+    </joint>
+
+    <!-- 2-D lidar: 360° sweep, 10 Hz, 30 m range, published on /scan -->
+    <gazebo reference="lidar_link">
+        <sensor name="lidar" type="gpu_lidar">
+            <pose>0 0 0 0 0 0</pose>
+            <topic>lidar</topic>
+            <update_rate>10</update_rate>
+            <ray>
+                <scan>
+                    <horizontal>
+                        <samples>360</samples>
+                        <resolution>1</resolution>
+                        <min_angle>-3.14159</min_angle>
+                        <max_angle>3.14159</max_angle>
+                    </horizontal>
+                </scan>
+                <range>
+                    <min>0.12</min>
+                    <max>30.0</max>
+                    <resolution>0.01</resolution>
+                </range>
+                <noise>
+                    <type>gaussian</type>
+                    <mean>0.0</mean>
+                    <stddev>0.01</stddev>
+                </noise>
+            </ray>
+            <always_on>1</always_on>
+            <visualize>true</visualize>
+        </sensor>
+    </gazebo>
+
+    <link name="camera_link">
+        <visual>
+            <geometry><box size="0.02 0.10 0.025"/></geometry>
+            <material name="black"/>
+        </visual>
+        <xacro:inertial_box mass="0.1" l="0.02" w="0.10" h="0.025">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:inertial_box>
+    </link>
+
+    <joint name="camera_joint" type="fixed">
+        <parent link="sensor_chin"/>
+        <child link="camera_link"/>
+        <origin xyz="0.04 0 0" rpy="0 -0.12 0"/>
+    </joint>
+
+    <!-- Forward-facing RGB camera: 640×480, 30 Hz, published on /camera/image_raw -->
+    <gazebo reference="camera_link">
+        <sensor name="camera" type="camera">
+            <pose>0 0 0 0 0 0</pose>
+            <topic>camera</topic>
+            <update_rate>30</update_rate>
+            <camera>
+                <horizontal_fov>1.3962634</horizontal_fov>
+                <image>
+                    <width>640</width>
+                    <height>480</height>
+                    <format>R8G8B8</format>
+                </image>
+                <clip>
+                    <near>0.05</near>
+                    <far>50.0</far>
+                </clip>
+                <noise>
+                    <type>gaussian</type>
+                    <mean>0.0</mean>
+                    <stddev>0.007</stddev>
+                </noise>
+            </camera>
+            <always_on>1</always_on>
+            <visualize>true</visualize>
+        </sensor>
+    </gazebo>
+
+
+    <ros2_control name="GazeboSystem" type="system">
+        <hardware>
+            <plugin>ign_ros2_control/IgnitionSystem</plugin>
+        </hardware>
+        
+        <joint name="lift_joint">
+            <command_interface name="position">
+                <param name="min">0.0</param>
+                <param name="max">0.04</param>
+            </command_interface>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+
+        <joint name="left_wheel_joint">
+            <command_interface name="velocity">
+                <param name="min">-30</param>
+                <param name="max">30</param>
+            </command_interface>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+
+        <joint name="right_wheel_joint">
+            <command_interface name="velocity">
+                <param name="min">-30</param>
+                <param name="max">30</param>
+            </command_interface>
+            <state_interface name="position"/>
+            <state_interface name="velocity"/>
+        </joint>
+    </ros2_control>
+
+    <gazebo>
+        <plugin filename="ign_ros2_control-system" name="ign_ros2_control::IgnitionROS2ControlPlugin">
+            <parameters>$(find amr_bringup)/config/amr_controllers.yaml</parameters>
+        </plugin>
+    </gazebo>
+</robot>
