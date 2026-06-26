@@ -43,12 +43,12 @@ This project is architected to decouple high-level decision-making from safety-c
 
 This project is being executed in a structured, testable, 5-phase engineering lifecycle:
 
-### Phase 1: Kinematics & Gazebo Base 🔄 [Current Focus]
+### Phase 1: Kinematics & Gazebo Base ✅ [Done]
 * Construct the parametric Xacro/URDF model of the differential-drive AMR base.
 * Integrate a prismatic lifting joint and payload attachment links.
 * Configure the low-level controllers using `gazebo_ros2_control`.
 
-### Phase 2: Navigation & Spatial Awareness 📅 [Planned]
+### Phase 2: Navigation & Spatial Awareness 🔄 [Current Focus]
 * Generate high-fidelity occupancy grid maps using `slam_toolbox`.
 * Configure `robot_localization` using an Extended Kalman Filter (EKF) to fuse IMU and wheel odometry.
 * Tune Nav2 utilizing the Regulated Pure Pursuit (RPP) or Model Predictive Path Integral (MPPI) local planners.
