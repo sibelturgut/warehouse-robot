@@ -29,6 +29,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+            'teleop_key = amr_bringup.teleop_key:main',
         ],
     },
 )

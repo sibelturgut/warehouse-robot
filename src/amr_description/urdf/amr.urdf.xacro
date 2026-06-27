@@ -179,7 +179,7 @@
         <origin xyz="0 0 ${chassis_height/2 + 0.001}" rpy="0 0 0"/>
         <axis xyz="0 0 1"/>
         <limit lower="0.0" upper="0.04" effort="4000.0" velocity="0.04"/>
-        <dynamics damping="50.0" friction="10.0"/>
+        <dynamics damping="80.0" friction="0.0"/>
     </joint>
 
     <xacro:macro name="lift_pillar" params="prefix x_offset y_offset">
@@ -290,6 +290,19 @@
         <origin xyz="0.04 0 0" rpy="0 -0.12 0"/>
     </joint>
 
+    <link name="imu_link">
+        <!-- negligible mass, just a frame -->
+        <xacro:inertial_box mass="0.01" l="0.01" w="0.01" h="0.01">
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+        </xacro:inertial_box>
+    </link>
+
+    <joint name="imu_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="imu_link"/>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+
     <!-- Forward-facing RGB camera: 640×480, 30 Hz, published on /camera/image_raw -->
     <gazebo reference="camera_link">
         <sensor name="camera" type="camera">
@@ -318,6 +331,25 @@
         </sensor>
     </gazebo>
 
+    <gazebo reference="imu_link">
+        <sensor name="imu" type="imu">
+            <topic>/imu</topic>
+            <update_rate>100</update_rate>
+            <always_on>1</always_on>
+            <imu>
+            <angular_velocity>
+                <x><noise type="gaussian"><mean>0</mean><stddev>0.009</stddev></noise></x>
+                <y><noise type="gaussian"><mean>0</mean><stddev>0.009</stddev></noise></y>
+                <z><noise type="gaussian"><mean>0</mean><stddev>0.009</stddev></noise></z>
+            </angular_velocity>
+            <linear_acceleration>
+                <x><noise type="gaussian"><mean>0</mean><stddev>0.021</stddev></noise></x>
+                <y><noise type="gaussian"><mean>0</mean><stddev>0.021</stddev></noise></y>
+                <z><noise type="gaussian"><mean>0</mean><stddev>0.021</stddev></noise></z>
+            </linear_acceleration>
+            </imu>
+        </sensor>
+    </gazebo>
 
     <ros2_control name="GazeboSystem" type="system">
         <hardware>
@@ -325,9 +357,9 @@
         </hardware>
         
         <joint name="lift_joint">
-            <command_interface name="position">
-                <param name="min">0.0</param>
-                <param name="max">0.04</param>
+            <command_interface name="effort">
+                <param name="min">-500.0</param>
+                <param name="max">500.0</param>
             </command_interface>
             <state_interface name="position"/>
             <state_interface name="velocity"/>

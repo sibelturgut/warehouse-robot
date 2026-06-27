@@ -110,6 +110,33 @@ def generate_launch_description():
         ]
     )
 
+    imu_bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        arguments=['/imu@sensor_msgs/msg/Imu[ignition.msgs.IMU'],
+        output='screen',
+    )
+
+    ekf_node = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_node',
+        output='screen',
+        parameters=[
+            os.path.join(get_package_share_directory('amr_bringup'), 'config', 'ekf.yaml'),
+            {'use_sim_time': True},
+        ],
+    )
+
+    lidar_tf_bridge = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        arguments=['0', '0', '0', '0', '0', '0',
+                'lidar_link', 'warehouse_amr/base_footprint/lidar'],
+        output='screen',
+    )
+
+
     # Controllers start only after the model is spawned, so the gz_ros2_control
     # plugin has created /controller_manager.
     load_controllers = RegisterEventHandler(
@@ -130,7 +157,10 @@ def generate_launch_description():
         lidar_bridge,
         camera_info_bridge,
         camera_image_bridge,
+        lidar_tf_bridge,
         spawn_entity,
         twist_mux,
         load_controllers,
+        imu_bridge,
+        ekf_node,
     ])

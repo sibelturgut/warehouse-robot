@@ -1,0 +1,25 @@
+ekf_node:
+  ros__parameters:
+    use_sim_time: true
+    frequency: 50.0
+    sensor_timeout: 0.1
+    two_d_mode: true        # planar robot — ignores z, roll, pitch
+
+    odom_frame:      odom
+    base_link_frame: base_link
+    world_frame:     odom
+
+    odom0: /amr_base_controller/odom
+    odom0_config: [false, false, false,   # x, y, z        ← don't fuse position directly
+                   false, false, false,   # roll, pitch, yaw
+                   true,  false, false,   # vx, vy, vz     ← USE forward velocity from wheels
+                   false, false, true,    # vroll, vpitch, vyaw ← USE angular rate from wheels
+                   false, false, false]   # ax, ay, az
+
+    imu0: /imu
+    imu0_config: [false, false, false,
+                  false, false, false,
+                  false, false, false,
+                  false, false, true,     # vyaw ← USE gyro Z (overrides wheel angular rate)
+                  true,  false, false]    # ax   ← USE forward accelerometer
+    imu0_remove_gravitational_acceleration: true

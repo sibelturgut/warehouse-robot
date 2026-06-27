@@ -8,7 +8,7 @@ controller_manager:
       type: joint_state_broadcaster/JointStateBroadcaster
 
     lift_position_controller:
-      type: position_controllers/JointGroupPositionController
+      type: effort_controllers/JointGroupEffortController
 
     # ADD THIS: Declare the new differential drive controller
     amr_base_controller:
@@ -20,7 +20,6 @@ lift_position_controller:
 
     joints:
       - lift_joint
-    interface_name: position
 
 # ADD THIS COMPLETELY: Configuration parameters for mobile base geometry
 amr_base_controller:
@@ -48,6 +47,7 @@ amr_base_controller:
     open_loop: false
     enable_odom_tf: true
     use_stamped_vel: false
+    enable_odom_tf: false
 
     velocity_rolling_window_size: 10
     halt_on_type_change: true

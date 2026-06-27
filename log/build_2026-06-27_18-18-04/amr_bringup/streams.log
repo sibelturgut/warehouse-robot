@@ -1,0 +1,34 @@
+[0.350s] Invoking command in '/home/sibel/amr_ws/build/amr_bringup': PYTHONPATH=/home/sibel/amr_ws/build/amr_bringup/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/sibel/amr_ws/install/amr_bringup/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --uninstall --editable --build-directory /home/sibel/amr_ws/build/amr_bringup/build
+[0.516s] running develop
+[0.632s] Removing /home/sibel/amr_ws/install/amr_bringup/lib/python3.10/site-packages/amr-bringup.egg-link (link to .)
+[0.651s] Invoked command in '/home/sibel/amr_ws/build/amr_bringup' returned '0': PYTHONPATH=/home/sibel/amr_ws/build/amr_bringup/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/sibel/amr_ws/install/amr_bringup/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --uninstall --editable --build-directory /home/sibel/amr_ws/build/amr_bringup/build
+[0.652s] Invoking command in '/home/sibel/amr_ws/src/amr_bringup': PYTHONPATH=/home/sibel/amr_ws/build/amr_bringup/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/sibel/amr_ws/install/amr_bringup/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/amr_bringup build --build-base /home/sibel/amr_ws/build/amr_bringup/build install --record /home/sibel/amr_ws/build/amr_bringup/install.log --single-version-externally-managed install_data --force
+[0.782s] running egg_info
+[0.782s] writing ../../build/amr_bringup/amr_bringup.egg-info/PKG-INFO
+[0.782s] writing dependency_links to ../../build/amr_bringup/amr_bringup.egg-info/dependency_links.txt
+[0.783s] writing entry points to ../../build/amr_bringup/amr_bringup.egg-info/entry_points.txt
+[0.783s] writing requirements to ../../build/amr_bringup/amr_bringup.egg-info/requires.txt
+[0.783s] writing top-level names to ../../build/amr_bringup/amr_bringup.egg-info/top_level.txt
+[0.784s] reading manifest file '../../build/amr_bringup/amr_bringup.egg-info/SOURCES.txt'
+[0.784s] writing manifest file '../../build/amr_bringup/amr_bringup.egg-info/SOURCES.txt'
+[0.784s] running build
+[0.784s] running build_py
+[0.784s] running install
+[0.784s] running install_lib
+[0.785s] creating /home/sibel/amr_ws/install/amr_bringup/lib/python3.10/site-packages/amr_bringup
+[0.785s] copying /home/sibel/amr_ws/build/amr_bringup/build/lib/amr_bringup/__init__.py -> /home/sibel/amr_ws/install/amr_bringup/lib/python3.10/site-packages/amr_bringup
+[0.785s] byte-compiling /home/sibel/amr_ws/install/amr_bringup/lib/python3.10/site-packages/amr_bringup/__init__.py to __init__.cpython-310.pyc
+[0.785s] running install_data
+[0.785s] copying resource/amr_bringup -> /home/sibel/amr_ws/install/amr_bringup/share/ament_index/resource_index/packages
+[0.785s] copying package.xml -> /home/sibel/amr_ws/install/amr_bringup/share/amr_bringup
+[0.785s] copying launch/sim.launch.py -> /home/sibel/amr_ws/install/amr_bringup/share/amr_bringup/launch
+[0.785s] copying config/amr_controllers.yaml -> /home/sibel/amr_ws/install/amr_bringup/share/amr_bringup/config
+[0.785s] copying config/twist_mux.yaml -> /home/sibel/amr_ws/install/amr_bringup/share/amr_bringup/config
+[0.785s] copying config/ekf.yaml -> /home/sibel/amr_ws/install/amr_bringup/share/amr_bringup/config
+[0.786s] copying worlds/warehouse.sdf -> /home/sibel/amr_ws/install/amr_bringup/share/amr_bringup/worlds
+[0.786s] running install_egg_info
+[0.786s] Copying ../../build/amr_bringup/amr_bringup.egg-info to /home/sibel/amr_ws/install/amr_bringup/lib/python3.10/site-packages/amr_bringup-0.0.0-py3.10.egg-info
+[0.787s] running install_scripts
+[0.799s] Installing teleop_key script to /home/sibel/amr_ws/install/amr_bringup/lib/amr_bringup
+[0.799s] writing list of installed files to '/home/sibel/amr_ws/build/amr_bringup/install.log'
+[0.812s] Invoked command in '/home/sibel/amr_ws/src/amr_bringup' returned '0': PYTHONPATH=/home/sibel/amr_ws/build/amr_bringup/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/sibel/amr_ws/install/amr_bringup/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/amr_bringup build --build-base /home/sibel/amr_ws/build/amr_bringup/build install --record /home/sibel/amr_ws/build/amr_bringup/install.log --single-version-externally-managed install_data --force
